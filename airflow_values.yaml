@@ -9,7 +9,7 @@ images:
 web:
   defaultUser:
     enabled: true
-    username: admin
+    username: admin123
     password: admin
 
 # Configure the Airflow database
