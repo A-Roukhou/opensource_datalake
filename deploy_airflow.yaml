@@ -1,0 +1,43 @@
+- name: Deploy Airflow on Minikube
+  hosts: localhost
+  tasks:
+    - name: Start Minikube
+      command: minikube start --cpus=2 --memory=4096
+
+    - name: Create Airflow namespace
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: airflow
+
+    - name: Add Airflow Helm repository
+      community.kubernetes.helm_repository:
+        name: apache-airflow
+        repo_url: https://airflow.apache.org
+
+    - name: Deploy Airflow with Helm
+      community.kubernetes.helm:
+        name: airflow
+        chart_ref: apache-airflow/airflow
+        release_namespace: airflow
+        values_file: values.yaml
+
+    - name: Wait for Airflow webserver pod to be ready
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: Pod
+        namespace: airflow
+        label_selectors:
+          - component=webserver
+      register: result
+      until: result.resources | selectattr('status.phase', 'equalto', 'Running') | list | length > 0
+      retries: 30
+      delay: 10
+
+    - name: Set up port forwarding to access Airflow web UI
+      command: kubectl port-forward svc/airflow-webserver 8080:8080 --namespace airflow
+      async: 1
+      poll: 0

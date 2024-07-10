@@ -1,0 +1,56 @@
+# Define the images to be used
+images:
+  airflow:
+    repository: apache/airflow
+    tag: 2.9.2
+    pullPolicy: IfNotPresent
+
+# Set the Airflow webserver default username and password
+web:
+  defaultUser:
+    enabled: true
+    username: admin
+    password: admin
+
+# Configure the Airflow database
+database:
+  type: postgresql
+  postgresql:
+    enabled: true
+    postgresqlDatabase: airflow
+    postgresqlUsername: postgres
+    postgresqlPassword: postgres
+
+# Set the executor to CeleryExecutor
+executor: CeleryExecutor
+
+# Configure the Redis instance for Celery backend
+redis:
+  enabled: true
+
+# Set the Airflow fernet key for encryption
+fernetKey: "0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a"
+
+# Configure Airflow's external URL (optional)
+# ingress:
+#   enabled: true
+#   web:
+#     annotations: {}
+#     hosts:
+#       - airflow.local
+#     path: /
+#     tls: []
+
+# Configure Airflow persistence for logs and DAGs
+persistence:
+  enabled: true
+  existingClaim: ""
+  accessMode: ReadWriteOnce
+  size: 10Gi
+  storageClass: ""
+  subPath: ""
+
+# Set Airflow service type (ClusterIP, NodePort, LoadBalancer)
+service:
+  type: ClusterIP
+  port: 8080
