@@ -11,6 +11,32 @@ web:
     enabled: true
     username: admin
     password: admin
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "500m"
+    limits:
+      memory: "2Gi"
+      cpu: "1000m"
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 8080
+    initialDelaySeconds: 60
+    timeoutSeconds: 10
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: 8080
+    initialDelaySeconds: 60
+    timeoutSeconds: 10
+  startupProbe:
+    httpGet:
+      path: /health
+      port: 8080
+    initialDelaySeconds: 60
+    timeoutSeconds: 10
+    failureThreshold: 10
 
 # Configure the Airflow database
 database:
@@ -31,26 +57,25 @@ redis:
 # Set the Airflow fernet key for encryption
 fernetKey: "0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a"
 
-# Configure Airflow's external URL (optional)
-# ingress:
-#   enabled: true
-#   web:
-#     annotations: {}
-#     hosts:
-#       - airflow.local
-#     path: /
-#     tls: []
-
 # Configure Airflow persistence for logs and DAGs
 persistence:
   enabled: true
-  existingClaim: ""
   accessMode: ReadWriteOnce
   size: 10Gi
-  storageClass: ""
-  subPath: ""
 
 # Set Airflow service type (ClusterIP, NodePort, LoadBalancer)
 service:
   type: ClusterIP
   port: 8080
+
+# Airflow config
+airflow:
+  config:
+    AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
+
+# DAGs volume configuration
+dags:
+  persistence:
+    enabled: true
+    accessMode: ReadWriteOnce
+    size: 1Gi
